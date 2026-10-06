@@ -1,14 +1,7 @@
 const metricsRoute = require('../../src/routes/metrics');
 const helloRoute = require('../../src/routes/hello');
 const healthzRoute = require('../../src/routes/healthz');
-const {
-    register,
-    helloN,
-    helloRamArrayLength,
-    callsToHello,
-    healthzSuccess,
-    healthzFailure,
-} = require('../../src/metrics');
+const { register, helloN, helloRamArrayLength, callsToHello, healthzSuccess, healthzFailure, callsToRoot, httpRequestsTotal } = require('../../src/metrics');
 
 describe('metrics route and prometheus tracking', () => {
     let req, res;
@@ -27,10 +20,7 @@ describe('metrics route and prometheus tracking', () => {
     test('metrics route handler outputs prometheus format metrics', async () => {
         await metricsRoute(req, res);
 
-        expect(res.set).toHaveBeenCalledWith(
-            'Content-Type',
-            register.contentType,
-        );
+        expect(res.set).toHaveBeenCalledWith('Content-Type', register.contentType);
         expect(res.end).toHaveBeenCalled();
         const output = res.end.mock.calls[0][0];
         expect(output).toContain('hello_n_total');
@@ -59,15 +49,13 @@ describe('metrics route and prometheus tracking', () => {
 
     test('healthz route updates success and failure metrics', async () => {
         jest.spyOn(Math, 'random').mockReturnValue(0.5); // Success
-        const initialSuccess =
-            (await healthzSuccess.get()).values[0]?.value || 0;
+        const initialSuccess = (await healthzSuccess.get()).values[0]?.value || 0;
         await healthzRoute(req, res);
         const newSuccess = (await healthzSuccess.get()).values[0]?.value || 0;
         expect(newSuccess).toBe(initialSuccess + 1);
 
         Math.random.mockReturnValue(0.05); // Failure
-        const initialFailure =
-            (await healthzFailure.get()).values[0]?.value || 0;
+        const initialFailure = (await healthzFailure.get()).values[0]?.value || 0;
         await healthzRoute(req, res);
         const newFailure = (await healthzFailure.get()).values[0]?.value || 0;
         expect(newFailure).toBe(initialFailure + 1);

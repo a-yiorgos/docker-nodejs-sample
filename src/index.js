@@ -10,19 +10,23 @@ const healthz = require('./routes/healthz');
 const hello = require('./routes/hello');
 const metricsRoute = require('./routes/metrics');
 
+const INTERESTED_ENDPOINTS = ['/', '/healthz', '/hello'];
+
 app.use(express.json());
 
 app.use((req, res, next) => {
-    if (req.path === '/') {
-        metrics.callsToRoot.inc();
-    }
-    res.on('finish', () => {
-        metrics.httpRequestsTotal.inc({
-            method: req.method,
-            path: req.route ? req.route.path : req.path,
-            status: res.statusCode.toString(),
+    if (INTERESTED_ENDPOINTS.includes(req.path)) {
+        if (req.path === '/') {
+            metrics.callsToRoot.inc();
+        }
+        res.on('finish', () => {
+            metrics.httpRequestsTotal.inc({
+                method: req.method,
+                path: req.route ? req.route.path : req.path,
+                status: res.statusCode.toString(),
+            });
         });
-    });
+    }
     next();
 });
 
