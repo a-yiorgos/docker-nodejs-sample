@@ -5,10 +5,12 @@ const getItems = require('./routes/getItems');
 const addItem = require('./routes/addItem');
 const updateItem = require('./routes/updateItem');
 const deleteItem = require('./routes/deleteItem');
+const healthz = require('./routes/healthz');
 
 app.use(express.json());
 app.use(express.static(__dirname + '/static'));
 
+app.get('/healthz', healthz);
 app.get('/items', getItems);
 app.post('/items', addItem);
 app.put('/items/:id', updateItem);
