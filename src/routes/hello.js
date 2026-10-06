@@ -1,4 +1,5 @@
 const os = require('os');
+const metrics = require('../metrics');
 
 let n = 0;
 let RAM = [];
@@ -11,6 +12,10 @@ module.exports = async (req, res) => {
     } else {
         RAM = new Array(RAM.length * 2);
     }
+
+    metrics.helloN.inc();
+    metrics.helloRamArrayLength.set(RAM.length);
+    metrics.callsToHello.inc();
 
     res.json({
         n: n,

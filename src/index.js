@@ -1,16 +1,34 @@
 const express = require('express');
 const app = express();
 const db = require('./persistence');
+const metrics = require('./metrics');
 const getItems = require('./routes/getItems');
 const addItem = require('./routes/addItem');
 const updateItem = require('./routes/updateItem');
 const deleteItem = require('./routes/deleteItem');
 const healthz = require('./routes/healthz');
 const hello = require('./routes/hello');
+const metricsRoute = require('./routes/metrics');
 
 app.use(express.json());
+
+app.use((req, res, next) => {
+    if (req.path === '/') {
+        metrics.callsToRoot.inc();
+    }
+    res.on('finish', () => {
+        metrics.httpRequestsTotal.inc({
+            method: req.method,
+            path: req.route ? req.route.path : req.path,
+            status: res.statusCode.toString(),
+        });
+    });
+    next();
+});
+
 app.use(express.static(__dirname + '/static'));
 
+app.get('/metrics', metricsRoute);
 app.get('/healthz', healthz);
 app.get('/hello', hello);
 app.get('/items', getItems);
