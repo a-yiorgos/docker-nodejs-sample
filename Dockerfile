@@ -1,18 +1,8 @@
-FROM gcc:latest AS sqlite-builder
-WORKDIR /sqlite
-RUN apt-get update && apt-get install -y tcl-dev tcl
-RUN git clone https://github.com/sqlite/sqlite.git . && \
-    ./configure && \
-    make sqlite3 && \
-    gcc -O2 -static -o /usr/local/bin/sqlite shell.c sqlite3.c -lm -lpthread
-
 FROM node:lts
 WORKDIR /app
 COPY . .
 #RUN npm install 
 RUN npm ci --omit=dev
-
-COPY --from=sqlite-builder /usr/local/bin/sqlite /usr/local/bin/sqlite
 
 # OpenShift stuff
 RUN chgrp -R 0 /app && chmod -R g=u /app
