@@ -6,7 +6,7 @@ RUN CGO_ENABLED=0 go build -o /usr/local/bin/sqlite ./examples/example1
 FROM node:lts
 WORKDIR /app
 COPY . .
-#RUN npm install 
+#RUN npm install
 RUN npm ci --omit=dev
 
 COPY --from=sqlite-builder /usr/local/bin/sqlite /usr/local/bin/sqlite
