@@ -1,7 +1,10 @@
-FROM golang:1 AS sqlite-builder
+FROM gcc:latest AS sqlite-builder
 WORKDIR /sqlite
-RUN git clone https://gitlab.com/cznic/sqlite.git .
-RUN CGO_ENABLED=0 go build -o /usr/local/bin/sqlite ./examples/example1
+RUN apt-get update && apt-get install -y tcl-dev tcl
+RUN git clone https://github.com/sqlite/sqlite.git . && \
+    ./configure && \
+    make sqlite3 && \
+    gcc -O2 -static -o /usr/local/bin/sqlite shell.c sqlite3.c -lm -lpthread
 
 FROM node:lts
 WORKDIR /app
