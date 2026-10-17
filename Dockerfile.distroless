@@ -1,0 +1,11 @@
+FROM node:26 AS build
+WORKDIR /app
+COPY . .
+RUN npm ci --omit=dev
+# Ensure OpenShift's arbitrary UID can write to necessary paths if needed
+RUN chgrp -R 0 /app && chmod -R g=u /app
+
+FROM gcr.io/distroless/nodejs26-debian13
+COPY --from=build --chown=:0 /app /app
+WORKDIR /app
+CMD [ "src/index.js" ]
