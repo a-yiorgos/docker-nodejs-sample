@@ -1,6 +1,12 @@
 module.exports = async (req, res) => {
-    let result = '';
     const headers = req.headers || {};
+    const path = req.path || req.originalUrl || req.url || '';
+    if (path.split('?')[0].endsWith('/json')) {
+        res.send(headers);
+        return;
+    }
+
+    let result = '';
     for (const [name, value] of Object.entries(headers)) {
         if (Array.isArray(value)) {
             for (const h of value) {

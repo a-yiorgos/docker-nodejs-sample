@@ -55,4 +55,44 @@ describe('headers route', () => {
         expect(res.type).toHaveBeenCalledWith('text/plain');
         expect(res.send).toHaveBeenCalledWith('');
     });
+
+    test('it responds with JSON object when path is /headers/json', async () => {
+        const req = {
+            path: '/headers/json',
+            headers: {
+                host: 'localhost:3000',
+                'user-agent': 'curl/7.68.0',
+                accept: '*/*',
+            },
+        };
+        const res = {
+            type: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+        };
+
+        await headers(req, res);
+
+        expect(res.send).toHaveBeenCalledTimes(1);
+        expect(res.send).toHaveBeenCalledWith({
+            host: 'localhost:3000',
+            'user-agent': 'curl/7.68.0',
+            accept: '*/*',
+        });
+        expect(res.type).not.toHaveBeenCalled();
+    });
+
+    test('it handles empty headers gracefully when path is /headers/json', async () => {
+        const req = {
+            path: '/headers/json',
+        };
+        const res = {
+            type: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+        };
+
+        await headers(req, res);
+
+        expect(res.send).toHaveBeenCalledTimes(1);
+        expect(res.send).toHaveBeenCalledWith({});
+    });
 });
