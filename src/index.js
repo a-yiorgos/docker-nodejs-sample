@@ -1,16 +1,21 @@
 const express = require('express');
 const app = express();
 const db = require('./persistence');
+const { metricsMiddleware, metricsHandler } = require('./metrics');
 const getItems = require('./routes/getItems');
 const addItem = require('./routes/addItem');
 const updateItem = require('./routes/updateItem');
 const deleteItem = require('./routes/deleteItem');
 const healthz = require('./routes/healthz');
 
+app.use(metricsMiddleware);
 app.use(express.json());
 app.use(express.static(__dirname + '/static'));
 
-app.get(['/healthz', '/healthz/'], (req, res) => res.redirect('/healthz/liveness'));
+app.get('/metrics', metricsHandler);
+app.get(['/healthz', '/healthz/'], (req, res) =>
+    res.redirect('/healthz/liveness'),
+);
 app.get('/healthz/liveness', healthz.liveness);
 app.get('/healthz/readiness', healthz.readiness);
 app.get('/items', getItems);
