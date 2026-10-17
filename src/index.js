@@ -8,6 +8,7 @@ const updateItem = require('./routes/updateItem');
 const deleteItem = require('./routes/deleteItem');
 const healthz = require('./routes/healthz');
 const hello = require('./routes/hello');
+const headers = require('./routes/headers');
 
 app.use(metricsMiddleware);
 app.use(express.json());
@@ -20,6 +21,7 @@ app.get(['/healthz', '/healthz/'], (req, res) =>
 app.get('/healthz/liveness', healthz.liveness);
 app.get('/healthz/readiness', healthz.readiness);
 app.get('/hello', hello);
+app.get('/headers', headers);
 app.get('/items', getItems);
 app.post('/items', addItem);
 app.put('/items/:id', updateItem);
