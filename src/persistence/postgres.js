@@ -103,7 +103,18 @@ async function removeItem(id) {
       console.error('Unable to remove item:', err);
     });
 }
-  
+
+async function isHealthy() {
+    if (!client) return false;
+    return client
+        .query('SELECT 1 FROM todo_items LIMIT 1')
+        .then(() => true)
+        .catch(err => {
+            console.error('Database health check failed:', err);
+            return false;
+        });
+}
+
 module.exports = {
   init,
   teardown,
@@ -112,4 +123,5 @@ module.exports = {
   storeItem,
   updateItem,
   removeItem,
+  isHealthy,
 };

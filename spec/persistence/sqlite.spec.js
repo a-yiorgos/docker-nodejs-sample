@@ -63,3 +63,20 @@ test('it can get a single item', async () => {
     const item = await db.getItem(ITEM.id);
     expect(item).toEqual(ITEM);
 });
+
+describe('isHealthy', () => {
+    test('returns true when db file exists and table exists', async () => {
+        await db.init();
+        const healthy = await db.isHealthy();
+        expect(healthy).toBe(true);
+    });
+
+    test('returns false when db file is missing', async () => {
+        await db.init();
+        if (fs.existsSync(location)) {
+            fs.unlinkSync(location);
+        }
+        const healthy = await db.isHealthy();
+        expect(healthy).toBe(false);
+    });
+});
