@@ -10,7 +10,9 @@ const healthz = require('./routes/healthz');
 app.use(express.json());
 app.use(express.static(__dirname + '/static'));
 
-app.get('/healthz', healthz);
+app.get(['/healthz', '/healthz/'], (req, res) => res.redirect('/healthz/liveness'));
+app.get('/healthz/liveness', healthz.liveness);
+app.get('/healthz/readiness', healthz.readiness);
 app.get('/items', getItems);
 app.post('/items', addItem);
 app.put('/items/:id', updateItem);

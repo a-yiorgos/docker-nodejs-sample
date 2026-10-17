@@ -102,6 +102,19 @@ async function removeItem(id) {
     });
 }
 
+async function isHealthy() {
+    if (!fs.existsSync(location)) {
+        return false;
+    }
+    return new Promise(acc => {
+        if (!db) return acc(false);
+        db.all('SELECT 1 FROM todo_items LIMIT 1', err => {
+            if (err) return acc(false);
+            acc(true);
+        });
+    });
+}
+
 module.exports = {
     init,
     teardown,
@@ -110,4 +123,5 @@ module.exports = {
     storeItem,
     updateItem,
     removeItem,
+    isHealthy,
 };
