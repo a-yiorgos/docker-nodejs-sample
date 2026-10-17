@@ -98,6 +98,35 @@ describe('Metrics module', () => {
                 'http_requests_total{method="GET",route="/unknown-route",code="404"}',
             );
         });
+
+        test.each([
+            '/metrics',
+            '/metrics/',
+            '/healthz',
+            '/healthz/',
+            '/healthz/liveness',
+            '/healthz/liveness/',
+            '/healthz/readiness',
+            '/healthz/readiness/',
+        ])('it excludes %s from metric collection', async (excludedPath) => {
+            const req = {
+                method: 'GET',
+                path: excludedPath,
+            };
+
+            const res = new EventEmitter();
+            res.statusCode = 200;
+
+            const next = jest.fn();
+
+            metricsMiddleware(req, res, next);
+            expect(next).toHaveBeenCalled();
+
+            res.emit('finish');
+
+            const metricsText = await register.metrics();
+            expect(metricsText).not.toContain(`route="${excludedPath}"`);
+        });
     });
 
     describe('default metrics', () => {

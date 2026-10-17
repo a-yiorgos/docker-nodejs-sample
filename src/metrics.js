@@ -28,12 +28,36 @@ const httpRequestDurationSeconds = new client.Histogram({
 });
 
 /**
+ * Paths to exclude from HTTP request metric collection (e.g., scrape and health check endpoints).
+ */
+const EXCLUDED_PATHS = new Set([
+    '/metrics',
+    '/healthz',
+    '/healthz/liveness',
+    '/healthz/readiness',
+]);
+
+/**
+ * Helper function to normalize request paths by removing trailing slashes.
+ */
+const normalizePath = (path) => {
+    if (!path) return '';
+    return path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
+};
+
+/**
  * Express middleware to automatically record request metrics upon completion.
  *
- * It uses high-cardinality prevention by capturing route patterns (e.g., /items/:id)
- * instead of raw paths containing specific entity IDs (e.g., /items/123).
+ * It excludes scrape (/metrics) and health probe (/healthz/*) endpoints from
+ * metric tracking and uses high-cardinality prevention by capturing route patterns
+ * (e.g., /items/:id) instead of raw paths containing specific entity IDs.
  */
 const metricsMiddleware = (req, res, next) => {
+    const normalizedPath = normalizePath(req.path);
+    if (EXCLUDED_PATHS.has(normalizedPath)) {
+        return next();
+    }
+
     const end = httpRequestDurationSeconds.startTimer();
 
     res.on('finish', () => {
