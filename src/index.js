@@ -24,6 +24,7 @@ app.get('/healthz/liveness', healthz.liveness);
 app.get('/healthz/readiness', healthz.readiness);
 app.get('/hello', hello);
 app.get('/headers', headers);
+app.get('/headers/json', headers);
 app.get('/items', getItems);
 app.post('/items', addItem);
 app.put('/items/:id', updateItem);
