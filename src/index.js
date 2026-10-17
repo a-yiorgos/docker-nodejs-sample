@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const db = require('./persistence');
 const { metricsMiddleware, metricsHandler } = require('./metrics');
+const { loggerMiddleware } = require('./logger');
 const getItems = require('./routes/getItems');
 const addItem = require('./routes/addItem');
 const updateItem = require('./routes/updateItem');
@@ -11,6 +12,7 @@ const hello = require('./routes/hello');
 const headers = require('./routes/headers');
 
 app.use(metricsMiddleware);
+app.use(loggerMiddleware);
 app.use(express.json());
 app.use(express.static(__dirname + '/static'));
 
